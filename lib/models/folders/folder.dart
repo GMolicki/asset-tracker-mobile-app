@@ -1,0 +1,18 @@
+class Folder {
+  int id;
+  String name;
+  List<Folder> subFolders = List();
+  bool isExpanded = false;
+
+  Folder({this.id, this.name, this.subFolders});
+
+  static Folder fromJson(Map<String, dynamic> folderMap) {
+    Iterable l = folderMap["subFolders"];
+    List<Folder> subFolders = l.map((f) => fromJson(f)).toList();
+    Folder root = new Folder(id: folderMap["id"], name: folderMap["name"], subFolders: subFolders);
+    if(root.name == 'All') {
+      root.isExpanded = true;
+    }
+    return root;
+  }
+}
