@@ -3,6 +3,8 @@ class Folder {
   String name;
   List<Folder> subFolders = List();
   bool isExpanded = false;
+  Folder parent;
+  int level;
 
   Folder({this.id, this.name, this.subFolders});
 
@@ -13,6 +15,7 @@ class Folder {
     if(root.name == 'All') {
       root.isExpanded = true;
     }
+    root.subFolders.forEach((sub) => sub.parent = root);
     return root;
   }
 }
