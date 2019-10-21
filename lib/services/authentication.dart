@@ -33,7 +33,6 @@ class Auth implements BaseAuth {
 
   @override
   Future<bool> signIn(String login, String password) {
-    print("Logging with login: " + login + " and password: " + password);
     var body = jsonEncode({"username":login, "password":password});
     return http
         .post("http://localhost:2990/jira/rest/auth/1/session", headers: {

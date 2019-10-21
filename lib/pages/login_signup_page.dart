@@ -111,7 +111,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
               _showLogo(),
               _showUsernameInput(),
               _showPasswordInput(),
-              _showPrimaryButton(),
+              _showLoginButton(),
               _showErrorMessage(),
             ],
           ),
@@ -154,8 +154,9 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
       padding: const EdgeInsets.fromLTRB(0.0, 100.0, 0.0, 0.0),
       child: new TextFormField(
         maxLines: 1,
-        keyboardType: TextInputType.emailAddress,
-        autofocus: false,
+        keyboardType: TextInputType.text,
+        autofocus: true,
+        initialValue: 'admin',
         decoration: new InputDecoration(
             hintText: 'Login',
             icon: new Icon(
@@ -172,6 +173,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     return Padding(
       padding: const EdgeInsets.fromLTRB(0.0, 15.0, 0.0, 0.0),
       child: new TextFormField(
+        initialValue: 'admin',
         maxLines: 1,
         obscureText: true,
         autofocus: false,
@@ -187,7 +189,7 @@ class _LoginSignUpPageState extends State<LoginSignUpPage> {
     );
   }
 
-  Widget _showPrimaryButton() {
+  Widget _showLoginButton() {
     return new Padding(
         padding: EdgeInsets.fromLTRB(0.0, 45.0, 0.0, 0.0),
         child: SizedBox(
