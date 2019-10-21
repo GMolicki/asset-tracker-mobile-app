@@ -4,8 +4,7 @@ import 'package:asset_tracker_mobile/services/single_argument_void_callback.dart
 import 'package:asset_tracker_mobile/models/folders/ExpendableListView.dart';
 
 class DrawerBuilder {
-  static Drawer fromFolderRoot(
-      Folder folder, Folder tree, SingleArgumentCallback onFolderTapCallback) {
+  static Drawer fromFolderRoot(Folder folder, Folder tree, SingleArgumentCallback onFolderTapCallback) {
     var folderName = folder?.name ?? "Unknown";
     return Drawer(
         child: Scaffold(
@@ -27,16 +26,14 @@ class DrawerBuilder {
 
 class SimpleDrawerBuilder extends StatefulWidget {
   final Folder root;
-  SingleArgumentCallback onFolderTapCallback;
-  List<Folder> foldersList;
-  Folder currentFolder;
+  final SingleArgumentCallback onFolderTapCallback;
+  final Folder currentFolder;
 
-  SimpleDrawerBuilder(this.currentFolder, this.root, this.onFolderTapCallback)
-      : super();
+  SimpleDrawerBuilder(this.currentFolder, this.root, this.onFolderTapCallback) : super();
 
   @override
-  _SimpleDrawerBuilderState createState() => new _SimpleDrawerBuilderState(
-      this.root, onFolderTapCallback, this.currentFolder);
+  _SimpleDrawerBuilderState createState() =>
+      new _SimpleDrawerBuilderState(this.root, onFolderTapCallback, this.currentFolder);
 }
 
 class _SimpleDrawerBuilderState extends State<SimpleDrawerBuilder> {
@@ -45,8 +42,7 @@ class _SimpleDrawerBuilderState extends State<SimpleDrawerBuilder> {
   List<Folder> foldersList;
   Folder currentFolder;
 
-  _SimpleDrawerBuilderState(
-      this.root, this.onFolderTapCallback, this.currentFolder);
+  _SimpleDrawerBuilderState(this.root, this.onFolderTapCallback, this.currentFolder);
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +82,7 @@ class _SimpleDrawerBuilderState extends State<SimpleDrawerBuilder> {
   Widget _buildFolderRow(Folder folder) {
     if (folder.subFolders?.length == 0 ?? false) {
       return Container(
-        padding: EdgeInsets.only(left: folder.level * 7.0),
+        padding: EdgeInsets.only(left: folder.level * 20.0),
         decoration: BoxDecoration(color: Colors.blue[100]),
         child: ListTile(
           title: Text(folder.name),
@@ -107,9 +103,7 @@ class _SimpleDrawerBuilderState extends State<SimpleDrawerBuilder> {
             style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
           ),
           leading: Icon(
-            folder.isExpanded
-                ? Icons.keyboard_arrow_up
-                : Icons.keyboard_arrow_down,
+            folder.isExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
             color: Colors.white,
           ),
         ),
@@ -117,13 +111,11 @@ class _SimpleDrawerBuilderState extends State<SimpleDrawerBuilder> {
     }
   }
 
-  List<Folder> _flattenFoldersStructure(
-      Folder folder, int level, List<Folder> foldersList) {
+  List<Folder> _flattenFoldersStructure(Folder folder, int level, List<Folder> foldersList) {
     folder.level = level;
     if (folder.parent?.isExpanded ?? true) {
       foldersList.add(folder);
-      folder.subFolders.forEach((subfolder) =>
-          _flattenFoldersStructure(subfolder, level + 1, foldersList));
+      folder.subFolders.forEach((subfolder) => _flattenFoldersStructure(subfolder, level + 1, foldersList));
     }
     return foldersList;
   }

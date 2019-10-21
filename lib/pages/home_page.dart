@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:asset_tracker_mobile/models/folders/drawer.dart';
 import 'package:flutter/material.dart';
 import 'package:asset_tracker_mobile/services/authentication.dart';
@@ -14,66 +15,104 @@ class HomePage extends StatefulWidget {
   final VoidCallback onSignedOut;
   final String baseAuth;
 
-  Folder currentFolder;
-  Folder foldersTree;
-  List<Widget> foundAssets = List();
-  bool isExpanded = true;
-
   @override
   State createState() => new _HomePage();
 }
 
 class _HomePage extends State<HomePage> {
+  Folder currentFolder;
+  Folder foldersTree;
+  List<Widget> foundAssets = List();
+  bool isExpanded = true;
+  SingleArgumentCallback searchCallback;
+
   @override
   Widget build(BuildContext context) {
-    buildFoldersTree();
-    searchForAssetsInFolder(widget.currentFolder ?? widget.foldersTree);
-    var callback = new SingleArgumentCallback(this.searchForAssetsInFolder);
-    return new Scaffold(
-        appBar: new AppBar(
-          primary: true,
-          title: Text(widget.currentFolder?.name ?? "Unknown", style: TextStyle(color: Colors.white)),
-        ),
-        body: new ListView(children: widget.foundAssets),
-        drawer: Drawer(
-          child: SimpleDrawerBuilder(widget.currentFolder, widget.foldersTree, callback)),
-        );
+    var scaffold = new Scaffold(
+      appBar: _appBar(),
+      body: new ListView(children: foundAssets),
+      endDrawer: _endDrawer(),
+      drawer: Drawer(child: SimpleDrawerBuilder(currentFolder, foldersTree, searchCallback)),
+    );
+    return scaffold;
   }
+
+  Widget _endDrawer() => Container(
+      margin: EdgeInsets.only(left: 50.0),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.only(bottomLeft: Radius.circular(20.0), topLeft: Radius.circular(20.0)),
+          color: Colors.blueAccent),
+      alignment: AlignmentDirectional.center,
+      child: ListView(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(10.0),
+            child: TextField(
+              decoration: InputDecoration(border: InputBorder.none, fillColor: Colors.white, labelText: "Search..."),
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(10.0),
+            child: TextField(
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(border: InputBorder.none, fillColor: Colors.white, labelText: "Page size"),
+              style: TextStyle(color: Colors.white),
+            ),
+          ),
+
+        ],
+      ));
+
+  AppBar _appBar() {
+    return new AppBar(
+      primary: true,
+      title: _title(),
+      actions: [_sortButton()],
+    );
+  }
+
+  Text _title() => Text(currentFolder?.name ?? "Unknown", style: TextStyle(color: Colors.white));
+
+  Widget _sortButton() => Container(
+      padding: EdgeInsets.only(left: 10.0, right: 10.0),
+      child: GestureDetector(
+        onTap: () => Scaffold.of(context).openEndDrawer(),
+        child: Icon(Icons.sort),
+      ));
 
   @override
   void initState() {
     super.initState();
-    buildFoldersTree();
-    searchForAssetsInFolder(widget.foldersTree);
+    searchCallback = new SingleArgumentCallback(this.searchForAssetsInFolder);
+    buildFoldersTree().then((_) => searchForAssetsInFolder(this.currentFolder ?? foldersTree));
   }
 
-  void searchForAssetsInFolder(Folder folder) async {
+  void searchForAssetsInFolder(Folder folder) {
     setState(() {
-      widget.currentFolder = folder;
+      currentFolder = folder;
+      searchForAssets(folder?.id ?? -1);
     });
-    searchForAssets(folder.id);
   }
 
-  void searchForAssets(int id) async {
-    final restService =
-        new AssetTrackerService(authHeader: widget.auth.getAuthHeader());
+  void searchForAssets(int id) {
+    final restService = new AssetTrackerService(widget.auth.getAuthHeader());
     restService.searchAssets(id, "").then((foundAssets) {
       List<Widget> assets = new List();
       for (var asset in foundAssets) {
         assets.add(AssetWidget(asset));
       }
       setState(() {
-        widget.foundAssets = assets;
+        this.foundAssets = assets;
       });
     });
   }
 
-  void buildFoldersTree() {
-    final restService =
-        new AssetTrackerService(authHeader: widget.auth.getAuthHeader());
-    restService.getFoldersTree().then((foldersTree) {
+  Future<void> buildFoldersTree() {
+    final restService = new AssetTrackerService(widget.auth.getAuthHeader());
+    return restService.getFoldersTree().then((foldersTree) {
       setState(() {
-        widget.foldersTree = foldersTree;
+        this.foldersTree = foldersTree;
       });
     });
   }
